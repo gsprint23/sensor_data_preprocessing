@@ -99,15 +99,14 @@ def apply_filter(df, sensor_loc):
         
     '''
     if sensor_loc == "HIP":         
-        B,A = signal.butter(4, 0.00388, 'highpass') 
-        D,C = signal.butter(4, 0.1171875, 'lowpass')   ## 3HZ for the COM SENSOR
-    elif sensor_loc == "LA" or sensor_loc == "RA":
-        B,A = signal.butter(4, 0.00388, 'highpass') 
-        D,C = signal.butter(4, 0.390625, 'lowpass')  
-
+        B,A = signal.butter(4, 0.00388, 'highpass') # 0.1 Hz
+        D,C = signal.butter(4, 0.1171875, 'lowpass') # 3 HZ
+    elif sensor_loc == "LA" or sensor_loc == "RA" or sensor_loc == "DEV":
+        B,A = signal.butter(4, 0.00388, 'highpass')  # 0.1 Hz
+        D,C = signal.butter(4, 0.390625, 'lowpass')  # 10 Hz
+        
     # Gyro filter lowpass cutoff at 4Hz (Tong and Granat 1999)
-    # 4Hz => .15625
-    E, F = signal.butter(4, 0.15625, 'lowpass')
+    E, F = signal.butter(4, 0.15625, 'lowpass') # 4Hz => .15625
     
     for label in accel_labels:
         ser = df[label]
@@ -207,6 +206,32 @@ def orient_COM(df):
     oriented_df["Wide Range Accelerometer X"] = df["Wide Range Accelerometer Z"] * -1
     oriented_df["Wide Range Accelerometer Y"] = df["Wide Range Accelerometer Y"]
     oriented_df["Wide Range Accelerometer Z"] = df["Wide Range Accelerometer X"]
+    
+    return oriented_df
+
+def orient_assistive_device(df, axes_df):
+    '''
+    Orient the assistive device sensor.
+
+    Keyword arguments:
+
+    '''
+    print "**Orienting sensor location: DEV**\n"
+
+    # GS: swapping X and Z to align with the international society of biomechanics
+    # where X is in the direction of travel
+    # Y is vertical
+    oriented_df = df.copy()
+    oriented_df["Gyroscope X"] = df["Gyroscope " + axes_df.ix["X"]["orig"]] * axes_df.ix["X"]["modifier"]
+    oriented_df["Gyroscope Y"] = df["Gyroscope " + axes_df.ix["Y"]["orig"]] * axes_df.ix["Y"]["modifier"]
+    oriented_df["Gyroscope Z"] = df["Gyroscope " + axes_df.ix["Z"]["orig"]] * axes_df.ix["Y"]["modifier"]
+    
+    oriented_df["Wide Range Accelerometer X"] = \
+        df["Wide Range Accelerometer " + axes_df.ix["X"]["orig"]] * axes_df.ix["X"]["modifier"]
+    oriented_df["Wide Range Accelerometer Y"] = \
+        df["Wide Range Accelerometer " + axes_df.ix["Y"]["orig"]] * axes_df.ix["Y"]["modifier"]
+    oriented_df["Wide Range Accelerometer Z"] = \
+        df["Wide Range Accelerometer " + axes_df.ix["Z"]["orig"]] * axes_df.ix["Z"]["modifier"]
     
     return oriented_df
 

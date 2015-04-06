@@ -90,7 +90,31 @@ def orient_filter_COM(path):
     
     utils.plot_oriented_filtered_data(df, oriented_df, oriented_filtered_df, "HIP")
     utils.write_data(fname, oriented_filtered_df_fname, oriented_filtered_df)
+ 
+def orient_filter_assistive_device(path):
+    '''
+    Orient and filter the assistive device sensor.
+
+    Keyword arguments:
+
+    '''
+    fname = os.path.join(path, "DEV.csv")
+    # this file exists because mounting was not always consistent
+    # so each individual session has its own axes alignment file
+    axes_fname = os.path.join(path, "DEV_axes.txt")
+    session_path = os.path.split(path)[0]
+    filtered_path = os.path.join(session_path, "Filtered_Ankle_Corrected")
+    oriented_filtered_df_fname = os.path.join(filtered_path, "DEV_oriented_filtered.csv")
     
+    # row 0 is device name, row 1 is signal name, row 2 is Raw or Cal, row 3 is units
+    df = pd.read_csv(fname, skiprows=[0, 2, 3], header=0, index_col=0)
+    axes_df = pd.read_csv(axes_fname, header=0, index_col=0)
+
+    oriented_df = utils.orient_assistive_device(df, axes_df)
+    oriented_filtered_df = utils.apply_filter(oriented_df.copy(), "DEV")
+    
+    utils.plot_oriented_filtered_data(df, oriented_df, oriented_filtered_df, "DEV")
+    utils.write_data(fname, oriented_filtered_df_fname, oriented_filtered_df)   
     
 def chop_data(path, dependent_sensor_locs):
     '''
@@ -121,19 +145,22 @@ def chop_data(path, dependent_sensor_locs):
     
     for sensor_loc in dependent_sensor_locs:
         loc_fname = os.path.join(filtered_path, sensor_loc + "_oriented_filtered.csv")
-        chopped_df_fname = os.path.join(trials_path, prefix + "_" + sensor_loc + ".csv")
-        chopped_df_fname2 = os.path.join(trials_path, prefix2 + "_" + sensor_loc + ".csv")
-        utils.chop_dependent_data(loc_fname, chopped_df_fname, chopped_df_fname2, trial_times)
+        # not all participants use an assistive device
+        if os.path.isfile(loc_fname):
+            chopped_df_fname = os.path.join(trials_path, prefix + "_" + sensor_loc + ".csv")
+            chopped_df_fname2 = os.path.join(trials_path, prefix2 + "_" + sensor_loc + ".csv")
+            utils.chop_dependent_data(loc_fname, chopped_df_fname, chopped_df_fname2, trial_times)
         
     
 if __name__ == '__main__':
     # filename munging...
     home_dir = os.path.expanduser("~")
     path = os.path.join(home_dir, r"Google Drive\StLukes Research\Data\Participant_Data")
-    path = os.path.join(path, r"031\031_S1_02-17-15\Timestamp_Aligned")
+    path = os.path.join(path, r"001\001_S1_3-5-14\Timestamp_Aligned")
     # HIP, RA, LA, or DEV #os.path.basename(fname)[:-4]
     #orient_filter_shank(path, "LA")
     #orient_filter_shank(path, "RA")
     #orient_filter_COM(path)
-    chop_data(path, ["LA", "RA"])
+    orient_filter_assistive_device(path)
+    #chop_data(path, ["LA", "RA", "DEV"])
     
