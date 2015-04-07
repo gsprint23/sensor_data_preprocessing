@@ -23,9 +23,6 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with sensor_data_preprocessing.  If not, see <http://www.gnu.org/licenses/>.
 
-OrientationFiltering --- main.py
-Created on Apr 2, 2015
-
 This code is specific to processing Shimmer3 sensor data for our ambulatory circuit
 wearable sensor study. Functions of interest that could be used for other research
 domains include:
