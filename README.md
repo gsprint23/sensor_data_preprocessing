@@ -1,4 +1,4 @@
-# sensor_data_preprocessing
+sensor_data_preprocessing
 ==========================
 
 sensor_data_preprocessing is a code base used to orient and filter Shimmer sensors  &lt;http://www.shimmersensing.com/>. The code also trims the data files down to the sections of interest. This code is highly specific to 
