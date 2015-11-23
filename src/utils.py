@@ -98,10 +98,11 @@ def apply_filter(df, sensor_loc):
     Keyword arguments:
         
     '''
-    if sensor_loc == "HIP":         
+    print "apply_filter(): sensor_loc " + sensor_loc
+    if sensor_loc == "HIP" or sensor_loc == "WALKER":         
         B,A = signal.butter(4, 0.00388, 'highpass') # 0.1 Hz
         D,C = signal.butter(4, 0.1171875, 'lowpass') # 3 HZ
-    elif sensor_loc == "LA" or sensor_loc == "RA" or sensor_loc == "DEV":
+    elif sensor_loc == "LA" or sensor_loc == "RA" or sensor_loc == "CANE":
         B,A = signal.butter(4, 0.00388, 'highpass')  # 0.1 Hz
         D,C = signal.butter(4, 0.390625, 'lowpass')  # 10 Hz
         
